@@ -26,7 +26,7 @@ const shippingSchema = z.object({
   zip: z.string().trim().regex(/^\d{5}$/, "Zip must be 5 digits"),
 });
 const paymentSchema = z.object({
-  card: z.string().replace(/\s/g, "").regex(/^\d{16}$/, "Card must be 16 digits"),
+  card: z.string().transform((s) => s.replace(/\s/g, "")).pipe(z.string().regex(/^\d{16}$/, "Card must be 16 digits")),
   expiry: z.string().regex(/^(0[1-9]|1[0-2])\/\d{2}$/, "Use MM/YY"),
   cvc: z.string().regex(/^\d{3}$/, "CVC must be 3 digits"),
 });
