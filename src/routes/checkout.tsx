@@ -62,9 +62,26 @@ function Checkout() {
     e.preventDefault();
     if (validate(paymentSchema, pay)) setStep(2);
   };
-  const placeOrder = () => {
-    setOrderId("BC-" + Math.random().toString(36).slice(2, 8).toUpperCase());
-    clear();
+  const [placing, setPlacing] = useState(false);
+  const [orderError, setOrderError] = useState<string | null>(null);
+  const placeOrder = async () => {
+    if (placing) return;
+    setPlacing(true);
+    setOrderError(null);
+    try {
+      const res = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ chaos, total, items: lines.reduce((s, l) => s + l.qty, 0) }),
+      });
+      if (!res.ok) throw new Error(`Order failed (${res.status})`);
+      setOrderId((await res.json()).orderId);
+      clear();
+    } catch (e) {
+      setOrderError(e instanceof Error ? e.message : "Order failed");
+    } finally {
+      setPlacing(false);
+    }
   };
 
   if (orderId) return (
@@ -135,8 +152,12 @@ function Checkout() {
               </ul>
               <div className="flex gap-2">
                 <button data-testid="review-back" onClick={() => setStep(1)} className="btn-outline">Back</button>
-                <button data-testid="place-order" onClick={placeOrder} className="btn-primary flex-1 justify-center">Place order · {money(total)}</button>
+                {/* BUG (chaos): button jumps away when hovered */}
+                <button data-testid="place-order" onClick={placeOrder} disabled={placing} aria-busy={placing} className={`btn-primary flex-1 justify-center transition-transform disabled:opacity-60 ${chaos ? "hover:translate-x-24 hover:-translate-y-3" : ""}`}>
+                  {placing ? "Placing order…" : `Place order · ${money(total)}`}
+                </button>
               </div>
+              {orderError && <p data-testid="order-error" role="alert" className="text-sm text-destructive">{orderError}</p>}
             </div>
           )}
         </div>

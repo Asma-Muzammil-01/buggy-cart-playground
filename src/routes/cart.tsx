@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Shell } from "@/components/Shell";
 import { getProduct, money, useStore } from "@/lib/store";
 
@@ -44,6 +44,30 @@ export function Totals() {
   );
 }
 
+function ServerTotals() {
+  const { lines, chaos, cartId } = useStore();
+  const [data, setData] = useState<{ subtotal: number; itemCount: number } | null>(null);
+  const key = JSON.stringify(lines.map((l) => [l.productId, l.qty]));
+  useEffect(() => {
+    if (!lines.length) { setData(null); return; }
+    let live = true;
+    fetch("/api/cart/totals", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ cartId, chaos, lines: lines.map(({ productId, qty }) => ({ productId, qty })) }),
+    }).then((r) => r.json()).then((d) => { if (live) setData(d); }).catch(() => {});
+    return () => { live = false; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [key, chaos, cartId]);
+  if (!data) return null;
+  return (
+    <div data-testid="server-totals" className="rounded-lg bg-muted p-3 text-xs text-muted-foreground">
+      Server check: <span data-testid="server-item-count">{data.itemCount}</span> items ·{" "}
+      <span data-testid="server-subtotal">{money(data.subtotal)}</span>
+    </div>
+  );
+}
+
 function CartPage() {
   const { lines, remove, setQty, chaos } = useStore();
   // BUG (chaos): more than 3 lines shifts the layout out of alignment
@@ -71,6 +95,7 @@ function CartPage() {
         <aside className="h-fit space-y-4 rounded-2xl border border-border bg-card p-5">
           <PromoBox />
           <Totals />
+          <ServerTotals />
           <Link to="/checkout" data-testid="cart-checkout" className="btn-primary w-full justify-center">Proceed to checkout</Link>
         </aside>
       </div>

@@ -12,7 +12,10 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CartRouteImport } from './routes/cart'
 import { Route as CheckoutRouteImport } from './routes/checkout'
+import { Route as ApiCheckoutRouteImport } from './routes/api/checkout'
+import { Route as ApiProductsRouteImport } from './routes/api/products'
 import { Route as ProductIdRouteImport } from './routes/product.$id'
+import { Route as ApiCartTotalsRouteImport } from './routes/api/cart/totals'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -29,9 +32,24 @@ const CheckoutRoute = CheckoutRouteImport.update({
   path: '/checkout',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiCheckoutRoute = ApiCheckoutRouteImport.update({
+  id: '/api/checkout',
+  path: '/api/checkout',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiProductsRoute = ApiProductsRouteImport.update({
+  id: '/api/products',
+  path: '/api/products',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProductIdRoute = ProductIdRouteImport.update({
   id: '/product/$id',
   path: '/product/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiCartTotalsRoute = ApiCartTotalsRouteImport.update({
+  id: '/api/cart/totals',
+  path: '/api/cart/totals',
   getParentRoute: () => rootRouteImport,
 } as any)
 
@@ -39,34 +57,68 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/cart': typeof CartRoute
   '/checkout': typeof CheckoutRoute
+  '/api/checkout': typeof ApiCheckoutRoute
+  '/api/products': typeof ApiProductsRoute
   '/product/$id': typeof ProductIdRoute
+  '/api/cart/totals': typeof ApiCartTotalsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/cart': typeof CartRoute
   '/checkout': typeof CheckoutRoute
+  '/api/checkout': typeof ApiCheckoutRoute
+  '/api/products': typeof ApiProductsRoute
   '/product/$id': typeof ProductIdRoute
+  '/api/cart/totals': typeof ApiCartTotalsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/cart': typeof CartRoute
   '/checkout': typeof CheckoutRoute
+  '/api/checkout': typeof ApiCheckoutRoute
+  '/api/products': typeof ApiProductsRoute
   '/product/$id': typeof ProductIdRoute
+  '/api/cart/totals': typeof ApiCartTotalsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/cart' | '/checkout' | '/product/$id'
+  fullPaths:
+    | '/'
+    | '/cart'
+    | '/checkout'
+    | '/api/checkout'
+    | '/api/products'
+    | '/product/$id'
+    | '/api/cart/totals'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/cart' | '/checkout' | '/product/$id'
-  id: '__root__' | '/' | '/cart' | '/checkout' | '/product/$id'
+  to:
+    | '/'
+    | '/cart'
+    | '/checkout'
+    | '/api/checkout'
+    | '/api/products'
+    | '/product/$id'
+    | '/api/cart/totals'
+  id:
+    | '__root__'
+    | '/'
+    | '/cart'
+    | '/checkout'
+    | '/api/checkout'
+    | '/api/products'
+    | '/product/$id'
+    | '/api/cart/totals'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CartRoute: typeof CartRoute
   CheckoutRoute: typeof CheckoutRoute
+  ApiCheckoutRoute: typeof ApiCheckoutRoute
+  ApiProductsRoute: typeof ApiProductsRoute
   ProductIdRoute: typeof ProductIdRoute
+  ApiCartTotalsRoute: typeof ApiCartTotalsRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -92,11 +144,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CheckoutRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/checkout': {
+      id: '/api/checkout'
+      path: '/api/checkout'
+      fullPath: '/api/checkout'
+      preLoaderRoute: typeof ApiCheckoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/products': {
+      id: '/api/products'
+      path: '/api/products'
+      fullPath: '/api/products'
+      preLoaderRoute: typeof ApiProductsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/product/$id': {
       id: '/product/$id'
       path: '/product/$id'
       fullPath: '/product/$id'
       preLoaderRoute: typeof ProductIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/cart/totals': {
+      id: '/api/cart/totals'
+      path: '/api/cart/totals'
+      fullPath: '/api/cart/totals'
+      preLoaderRoute: typeof ApiCartTotalsRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -106,7 +179,10 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CartRoute: CartRoute,
   CheckoutRoute: CheckoutRoute,
+  ApiCheckoutRoute: ApiCheckoutRoute,
+  ApiProductsRoute: ApiProductsRoute,
   ProductIdRoute: ProductIdRoute,
+  ApiCartTotalsRoute: ApiCartTotalsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

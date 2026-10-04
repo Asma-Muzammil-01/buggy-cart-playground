@@ -33,6 +33,7 @@ type Ctx = {
   total: number;
   cartOpen: boolean;
   setCartOpen: (v: boolean) => void;
+  cartId: string;
 };
 
 const StoreCtx = createContext<Ctx | null>(null);
@@ -69,7 +70,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const setQty = (lineId: string, qty: number) =>
     setLines((prev) => prev.map((l) => (l.lineId === lineId ? { ...l, qty: Math.max(1, qty) } : l)));
   const remove = (lineId: string) => setLines((prev) => prev.filter((l) => l.lineId !== lineId));
-  const clear = () => { setLines([]); setPromo(null); };
+  const [cartId, setCartId] = useState("initial");
+  useEffect(() => { setCartId(crypto.randomUUID()); }, []);
+  const clear = () => { setLines([]); setPromo(null); setCartId(crypto.randomUUID()); };
 
   // BUG (chaos): subtotal keyed by productId, so duplicate lines overwrite each other
   let subtotal: number;
@@ -91,7 +94,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const total = chaos ? subtotal - discount : Math.max(0, subtotal - discount);
 
   return (
-    <StoreCtx.Provider value={{ chaos, setChaos, lines, add, setQty, remove, clear, subtotal, itemCount, promo, applyPromo, discount, total, cartOpen, setCartOpen }}>
+    <StoreCtx.Provider value={{ chaos, setChaos, lines, add, setQty, remove, clear, subtotal, itemCount, promo, applyPromo, discount, total, cartOpen, setCartOpen, cartId }}>
       {children}
     </StoreCtx.Provider>
   );
